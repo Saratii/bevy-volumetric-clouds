@@ -30,6 +30,10 @@ use crate::{
 
 use self::compute::CloudsComputePlugin;
 
+/// Marker component to skip volumetric clouds rendering for a specific camera
+#[derive(Component)]
+pub struct SkipVolumetricClouds;
+
 /// A plugin for rendering clouds.
 ///
 /// The configuration of the clouds can be changed using the [`CloudsConfig`] resource.
@@ -84,7 +88,7 @@ fn clouds_setup(
 }
 
 fn update_camera_matrices(
-    cam_query: Single<(&GlobalTransform, &Camera)>,
+    cam_query: Single<(&GlobalTransform, &Camera), Without<SkipVolumetricClouds>>,
     mut config: ResMut<CameraMatrices>,
 ) {
     let (camera_transform, camera) = *cam_query;
