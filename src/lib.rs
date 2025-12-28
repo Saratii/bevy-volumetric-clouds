@@ -12,7 +12,7 @@ mod skybox;
 #[cfg(feature = "debug")]
 mod ui;
 mod uniforms;
-use bevy::prelude::*;
+use bevy::{prelude::*, render::extract_component::ExtractComponent};
 
 #[cfg(feature = "debug")]
 use self::ui::ui_system;
@@ -30,10 +30,20 @@ use crate::{
 
 use self::compute::CloudsComputePlugin;
 
-/// Marker component to skip volumetric clouds rendering for a specific camera
-#[derive(Component)]
-pub struct SkipVolumetricClouds;
+/// Marker component for cameras that should render volumetric clouds.
+/// **Note:** Currently only supports one CloudCamera at a time.
+#[derive(Component, Clone, Copy)]
+pub struct CloudCamera;
 
+impl ExtractComponent for CloudCamera {
+    type QueryData = ();
+    type QueryFilter = With<CloudCamera>;
+    type Out = CloudCamera;
+
+    fn extract_component(_: ()) -> Option<Self::Out> {
+        Some(CloudCamera)
+    }
+}
 /// A plugin for rendering clouds.
 ///
 /// The configuration of the clouds can be changed using the [`CloudsConfig`] resource.
@@ -88,7 +98,7 @@ fn clouds_setup(
 }
 
 fn update_camera_matrices(
-    cam_query: Single<(&GlobalTransform, &Camera), Without<SkipVolumetricClouds>>,
+    cam_query: Single<(&GlobalTransform, &Camera), With<CloudCamera>>,
     mut config: ResMut<CameraMatrices>,
 ) {
     let (camera_transform, camera) = *cam_query;
