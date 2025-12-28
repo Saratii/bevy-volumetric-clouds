@@ -57,10 +57,7 @@ fn prepare_uniforms_bind_group(
     render_device: Res<RenderDevice>,
     time: Res<Time>,
 ) {
-    let Some(camera) = camera else {
-        warn_once!("No camera with CloudCamera component found. Clouds will not render.");
-        return;
-    };
+    let camera = camera.expect("No camera with CloudCamera component found.");
     let buffer = clouds_uniform_buffer.buffer.get_mut();
 
     buffer.clouds_raymarch_steps_count = clouds_config.clouds_raymarch_steps_count;
