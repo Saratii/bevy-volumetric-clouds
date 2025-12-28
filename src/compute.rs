@@ -312,7 +312,6 @@ fn extract_camera_matrices(
     mut commands: Commands,
     camera: Extract<Single<(&GlobalTransform, &Projection), With<CloudCamera>>>,
 ) {
-    let view: Mat4 = camera.0.affine().inverse().into();
     let proj: Mat4 = match camera.1 {
         Projection::Perspective(p) => p.get_clip_from_view(),
         Projection::Orthographic(o) => o.get_clip_from_view(),
@@ -320,7 +319,7 @@ fn extract_camera_matrices(
     };
     commands.insert_resource(CameraMatrices {
         translation: camera.0.translation(),
-        inverse_camera_view: view,
+        inverse_camera_view: camera.0.to_matrix(),
         inverse_camera_projection: proj.inverse(),
     });
 }
