@@ -44,6 +44,23 @@ impl ExtractComponent for CloudCamera {
         Some(CloudCamera)
     }
 }
+
+/// Controls the distance of the skybox from the camera.
+/// Can be used to create vanishing fog effects by bringing the skybox closer.
+#[derive(Resource)]
+pub enum SkyboxDistanceMode {
+    /// Scale relative to camera far plane (e.g., 4.0 = 4x far plane distance)
+    RelativeToFarPlane(f32),
+    /// Fixed distance in world units
+    FixedWorldDistance(f32),
+}
+
+impl Default for SkyboxDistanceMode {
+    fn default() -> Self {
+        Self::RelativeToFarPlane(4.0)
+    }
+}
+
 /// A plugin for rendering clouds.
 ///
 /// The configuration of the clouds can be changed using the [`CloudsConfig`] resource.
@@ -52,6 +69,7 @@ pub struct CloudsPlugin;
 impl Plugin for CloudsPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(CloudsConfig::default())
+            .insert_resource(SkyboxDistanceMode::default())
             .add_plugins((CloudsComputePlugin, CloudsShaderPlugin))
             .add_systems(Startup, (clouds_setup, setup_daylight))
             .add_systems(

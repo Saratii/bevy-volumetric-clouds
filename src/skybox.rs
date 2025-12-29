@@ -2,7 +2,7 @@ use core::f32::consts::PI;
 
 use bevy::{light::light_consts::lux::FULL_DAYLIGHT, prelude::*};
 
-use crate::CloudCamera;
+use crate::{CloudCamera, SkyboxDistanceMode};
 
 #[derive(Component)]
 pub(crate) struct SkyboxPlane {
@@ -120,11 +120,9 @@ pub(crate) fn setup_daylight(mut commands: Commands) {
 }
 
 pub(crate) fn update_skybox_transform(
-    camera: Single<
-        (&Transform, &Camera, &Projection),
-        (Without<SkyboxPlane>, With<CloudCamera>),
-    >,
+    camera: Single<(&Transform, &Camera, &Projection), (Without<SkyboxPlane>, With<CloudCamera>)>,
     mut skybox: Query<(&mut Transform, &SkyboxPlane)>,
+    skybox_distance_mode: Res<SkyboxDistanceMode>,
 ) {
     let far = match camera.2 {
         Projection::Perspective(pers) => pers.far,
@@ -132,7 +130,10 @@ pub(crate) fn update_skybox_transform(
             panic!("unexpected projection")
         }
     };
-    let scale = far * 4.0;
+    let scale = match skybox_distance_mode.as_ref() {
+        SkyboxDistanceMode::RelativeToFarPlane(multiplier) => far * multiplier,
+        SkyboxDistanceMode::FixedWorldDistance(distance) => *distance,
+    };
 
     for (mut transform, plane) in skybox.iter_mut() {
         transform.scale = Vec3::splat(scale);
