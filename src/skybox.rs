@@ -137,6 +137,7 @@ pub(crate) fn update_skybox_transform(
 
     for (mut transform, plane) in skybox.iter_mut() {
         transform.scale = Vec3::splat(scale);
-        transform.translation = camera.0.translation + plane.orig_translation * scale;
+        let direction = plane.orig_translation.normalize();
+        transform.translation = camera.0.translation + direction * scale;
     }
 }
