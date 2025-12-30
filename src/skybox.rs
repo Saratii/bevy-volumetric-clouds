@@ -1,6 +1,9 @@
 use core::f32::consts::PI;
 
-use bevy::{light::light_consts::lux::FULL_DAYLIGHT, prelude::*};
+use bevy::{
+    light::{NotShadowCaster, NotShadowReceiver},
+    prelude::*,
+};
 
 use crate::CloudCamera;
 
@@ -52,6 +55,8 @@ pub(crate) fn init_skybox_mesh<M: Material>(
         SkyboxPlane {
             orig_translation: Vec3::new(-box_size, 0.0, 0.0),
         },
+        NotShadowCaster,
+        NotShadowReceiver,
     ));
 
     // negative y
@@ -62,6 +67,8 @@ pub(crate) fn init_skybox_mesh<M: Material>(
         SkyboxPlane {
             orig_translation: Vec3::new(0.0, -box_size, 0.0),
         },
+        NotShadowCaster,
+        NotShadowReceiver,
     ));
 
     // negative z
@@ -73,6 +80,8 @@ pub(crate) fn init_skybox_mesh<M: Material>(
         SkyboxPlane {
             orig_translation: Vec3::new(0.0, 0.0, -box_size),
         },
+        NotShadowCaster,
+        NotShadowReceiver,
     ));
 
     // positive x
@@ -84,6 +93,8 @@ pub(crate) fn init_skybox_mesh<M: Material>(
         SkyboxPlane {
             orig_translation: Vec3::new(box_size, 0.0, 0.0),
         },
+        NotShadowCaster,
+        NotShadowReceiver,
     ));
 
     // positive y
@@ -95,6 +106,8 @@ pub(crate) fn init_skybox_mesh<M: Material>(
         SkyboxPlane {
             orig_translation: Vec3::new(0.0, box_size, 0.0),
         },
+        NotShadowCaster,
+        NotShadowReceiver,
     ));
 
     // positive z
@@ -106,24 +119,13 @@ pub(crate) fn init_skybox_mesh<M: Material>(
         SkyboxPlane {
             orig_translation: Vec3::new(0.0, 0.0, box_size),
         },
-    ));
-}
-
-pub(crate) fn setup_daylight(mut commands: Commands) {
-    commands.spawn((
-        Transform::from_xyz(1.0, 1.0, 0.0).looking_at(Vec3::ZERO, Vec3::Y),
-        DirectionalLight {
-            illuminance: FULL_DAYLIGHT,
-            ..default()
-        },
+        NotShadowCaster,
+        NotShadowReceiver,
     ));
 }
 
 pub(crate) fn update_skybox_transform(
-    camera: Single<
-        (&Transform, &Camera, &Projection),
-        (Without<SkyboxPlane>, With<CloudCamera>),
-    >,
+    camera: Single<(&Transform, &Camera, &Projection), (Without<SkyboxPlane>, With<CloudCamera>)>,
     mut skybox: Query<(&mut Transform, &SkyboxPlane)>,
 ) {
     let far = match camera.2 {

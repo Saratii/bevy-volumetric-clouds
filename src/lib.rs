@@ -24,7 +24,7 @@ use crate::{
     config::CloudsConfig,
     images::build_images,
     render::{CloudsMaterial, CloudsShaderPlugin},
-    skybox::{SkyboxMaterials, init_skybox_mesh, setup_daylight, update_skybox_transform},
+    skybox::{SkyboxMaterials, init_skybox_mesh, update_skybox_transform},
     uniforms::CloudsImage,
 };
 
@@ -53,7 +53,7 @@ impl Plugin for CloudsPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(CloudsConfig::default())
             .add_plugins((CloudsComputePlugin, CloudsShaderPlugin))
-            .add_systems(Startup, (clouds_setup, setup_daylight))
+            .add_systems(Startup, clouds_setup)
             .add_systems(
                 PostUpdate,
                 (update_skybox_transform, update_camera_matrices)

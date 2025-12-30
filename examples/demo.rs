@@ -2,8 +2,8 @@
 //!
 //! - Enable the `fly_camera` feature to be able to control the camera with keyboard and mouse.
 //! - Enable the `debug` feature to be able to control the clouds settings using an `egui` UI.
-use bevy::prelude::*;
 use bevy::render::view::Hdr;
+use bevy::{light::light_consts::lux::FULL_DAYLIGHT, prelude::*};
 #[cfg(feature = "debug")]
 use bevy_egui::EguiPlugin;
 #[cfg(feature = "fly_camera")]
@@ -32,7 +32,7 @@ fn main() {
             #[cfg(feature = "debug")]
             EguiPlugin::default(),
         ))
-        .add_systems(Startup, setup)
+        .add_systems(Startup, (setup, setup_daylight))
         .add_systems(Update, close_on_esc)
         .run();
 }
@@ -55,5 +55,15 @@ fn setup(
     commands.spawn((
         Mesh3d(meshes.add(Plane3d::new(Vec3::Y, Vec2::splat(1e4)))),
         MeshMaterial3d(std_materials.add(Color::srgb_u8(124, 144, 255))),
+    ));
+}
+
+fn setup_daylight(mut commands: Commands) {
+    commands.spawn((
+        Transform::from_xyz(1.0, 1.0, 0.0).looking_at(Vec3::ZERO, Vec3::Y),
+        DirectionalLight {
+            illuminance: FULL_DAYLIGHT,
+            ..default()
+        },
     ));
 }
